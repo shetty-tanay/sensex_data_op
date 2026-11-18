@@ -396,6 +396,7 @@ def process_one_file(service, chunk_idx, file_id, file_name):
                         open_offer_qty_first_available=("offer_qty", lambda x: x.iloc[0]),
 
                         tick_count=("internal_timestamp", "size"),
+
                         open_timestamp=("internal_timestamp", "first"),
                         close_timestamp=("internal_timestamp", "last"),
                     )
@@ -458,8 +459,7 @@ def process_one_file(service, chunk_idx, file_id, file_name):
                     open_offer_price_first_available=("open_offer_price_first_available", lambda x: x.iloc[0]),
                     open_offer_qty_first_available=("open_offer_qty_first_available", lambda x: x.iloc[0]),
                     tick_count = ("tick_count", "sum"),
-                    open_timestamp = ("open_timestamp","first"),
-                    close_timestamp = ("close_timestamp","last")
+                    open_timestamp = ("open_timestamp","first")
                 )
                 .reset_index()
             )
