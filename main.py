@@ -335,7 +335,7 @@ def process_one_file(service, chunk_idx, file_id, file_name):
         #     while not done:
         #         _, done = downloader.next_chunk()
 
-        dedup_cols = ["datetime", "tradingsymbol", "expiry","date"]
+        dedup_cols = ["datetime", "tradingsymbol", "expiry", "date"]
         chunk_list = []
         with pd.read_csv(raw_path, chunksize=100000) as reader:
             for chunk in reader:
@@ -380,23 +380,34 @@ def process_one_file(service, chunk_idx, file_id, file_name):
                         close_last_price=("last_price", "last"),
                         close_oi=("oi", "last"),
                         open_oi=("oi", "first"),
-                         
                         cumm_volume_trades=("volume_traded", "last"),
-
-                        close_bid_price_last_available= ("bid_price", lambda x: x.iloc[-1]),
+                        close_bid_price_last_available=(
+                            "bid_price",
+                            lambda x: x.iloc[-1],
+                        ),
                         close_bid_qty_last_available=("bid_qty", lambda x: x.iloc[-1]),
-
-                        open_bid_price_first_available=("bid_price", lambda x: x.iloc[0]),
+                        open_bid_price_first_available=(
+                            "bid_price",
+                            lambda x: x.iloc[0],
+                        ),
                         open_bid_qty_first_available=("bid_qty", lambda x: x.iloc[0]),
-
-                        close_offer_price_last_available=("offer_price", lambda x: x.iloc[-1]),
-                        close_offer_qty_last_available=("offer_qty", lambda x: x.iloc[-1]),
-
-                        open_offer_price_first_available=("offer_price", lambda x: x.iloc[0]),
-                        open_offer_qty_first_available=("offer_qty", lambda x: x.iloc[0]),
-
+                        close_offer_price_last_available=(
+                            "offer_price",
+                            lambda x: x.iloc[-1],
+                        ),
+                        close_offer_qty_last_available=(
+                            "offer_qty",
+                            lambda x: x.iloc[-1],
+                        ),
+                        open_offer_price_first_available=(
+                            "offer_price",
+                            lambda x: x.iloc[0],
+                        ),
+                        open_offer_qty_first_available=(
+                            "offer_qty",
+                            lambda x: x.iloc[0],
+                        ),
                         tick_count=("internal_timestamp", "size"),
-
                         open_timestamp=("internal_timestamp", "first"),
                         close_timestamp=("internal_timestamp", "last"),
                     )
@@ -447,25 +458,52 @@ def process_one_file(service, chunk_idx, file_id, file_name):
                     close_last_price=("close_last_price", "last"),
                     close_oi=("close_oi", "last"),
                     open_oi=("open_oi", "first"),
-
                     cumm_volume_trades=("cumm_volume_trades", "last"),
-                    
-                    close_bid_price_last_available= ("close_bid_price_last_available", lambda x: x.iloc[-1]),
-                    close_bid_qty_last_available=("close_bid_qty_last_available", lambda x: x.iloc[-1]),
-                    open_bid_price_first_available=("open_bid_price_first_available", lambda x: x.iloc[0]),
-                    open_bid_qty_first_available=("open_bid_qty_first_available", lambda x: x.iloc[0]),
-                    close_offer_price_last_available=("close_offer_price_last_available", lambda x: x.iloc[-1]),
-                    close_offer_qty_last_available=("close_offer_qty_last_available", lambda x: x.iloc[-1]),
-                    open_offer_price_first_available=("open_offer_price_first_available", lambda x: x.iloc[0]),
-                    open_offer_qty_first_available=("open_offer_qty_first_available", lambda x: x.iloc[0]),
-                    tick_count = ("tick_count", "sum"),
-                    open_timestamp = ("open_timestamp","first")
+                    close_bid_price_last_available=(
+                        "close_bid_price_last_available",
+                        lambda x: x.iloc[-1],
+                    ),
+                    close_bid_qty_last_available=(
+                        "close_bid_qty_last_available",
+                        lambda x: x.iloc[-1],
+                    ),
+                    open_bid_price_first_available=(
+                        "open_bid_price_first_available",
+                        lambda x: x.iloc[0],
+                    ),
+                    open_bid_qty_first_available=(
+                        "open_bid_qty_first_available",
+                        lambda x: x.iloc[0],
+                    ),
+                    close_offer_price_last_available=(
+                        "close_offer_price_last_available",
+                        lambda x: x.iloc[-1],
+                    ),
+                    close_offer_qty_last_available=(
+                        "close_offer_qty_last_available",
+                        lambda x: x.iloc[-1],
+                    ),
+                    open_offer_price_first_available=(
+                        "open_offer_price_first_available",
+                        lambda x: x.iloc[0],
+                    ),
+                    open_offer_qty_first_available=(
+                        "open_offer_qty_first_available",
+                        lambda x: x.iloc[0],
+                    ),
+                    tick_count=("tick_count", "sum"),
+                    open_timestamp=("open_timestamp", "first"),
                 )
                 .reset_index()
             )
             master_df = master_df.sort_values("open_timestamp")
-            master_df["volume_traded"] = (master_df.groupby(["tradingsymbol", "date"],sort=False)
-                                        ["cumm_volume_trades"].diff().fillna(master_df["cumm_volume_trades"]))
+            master_df["volume_traded"] = (
+                master_df.groupby(["tradingsymbol", "date"], sort=False)[
+                    "cumm_volume_trades"
+                ]
+                .diff()
+                .fillna(master_df["cumm_volume_trades"])
+            )
 
             for expiry_val, group_df in master_df.groupby("expiry"):
                 print(

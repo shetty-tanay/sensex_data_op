@@ -6,3 +6,4 @@ credentials.json
 token.pickle
 *.log
 *.txt
+synth_futures/*
